@@ -1,0 +1,759 @@
+//--- PROJECT STRUCTURE ---
+
+ai-prompt-combiner
+    ├── media
+    |   └── icon.svg
+    ├── src
+    |   ├── test
+    |   |   └── extension.test.ts
+    |   ├── extension.ts
+    |   ├── ProjectFilesProvider.ts
+    |   ├── SelectedFilesProvider.ts
+    |   └── tree.ts
+    ├── .npmrc
+    ├── .vscode-test.mjs
+    ├── .vscodeignore
+    ├── ai-prompt-combiner-0.0.1.vsix
+    ├── CHANGELOG.md
+    ├── combined_prompt.txt
+    ├── eslint.config.mjs
+    ├── package.json
+    ├── README.md
+    ├── tsconfig.json
+    └── vsc-extension-quickstart.md
+
+
+//--- FILE CONTENTS ---
+
+//--- FILE: .npmrc ---
+
+enable-pre-post-scripts = true
+
+//--- END OF FILE: .npmrc ---
+
+//--- FILE: .vscode-test.mjs ---
+
+import { defineConfig } from '@vscode/test-cli';
+
+export default defineConfig({
+	files: 'out/test/**/*.test.js',
+});
+
+
+//--- END OF FILE: .vscode-test.mjs ---
+
+//--- FILE: .vscodeignore ---
+
+.vscode/**
+.vscode-test/**
+src/**
+.gitignore
+.yarnrc
+vsc-extension-quickstart.md
+**/tsconfig.json
+**/eslint.config.mjs
+**/*.map
+**/*.ts
+**/.vscode-test.*
+
+
+//--- END OF FILE: .vscodeignore ---
+
+//--- FILE: CHANGELOG.md ---
+
+# Change Log
+
+All notable changes to the "ai-prompt-combiner" extension will be documented in this file.
+
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+
+## [Unreleased]
+
+- Initial release
+
+//--- END OF FILE: CHANGELOG.md ---
+
+//--- FILE: eslint.config.mjs ---
+
+import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
+
+export default [{
+    files: ["**/*.ts"],
+}, {
+    plugins: {
+        "@typescript-eslint": typescriptEslint,
+    },
+
+    languageOptions: {
+        parser: tsParser,
+        ecmaVersion: 2022,
+        sourceType: "module",
+    },
+
+    rules: {
+        "@typescript-eslint/naming-convention": ["warn", {
+            selector: "import",
+            format: ["camelCase", "PascalCase"],
+        }],
+
+        curly: "warn",
+        eqeqeq: "warn",
+        "no-throw-literal": "warn",
+        semi: "warn",
+    },
+}];
+
+//--- END OF FILE: eslint.config.mjs ---
+
+//--- FILE: package.json ---
+
+{
+  "name": "ai-prompt-combiner",
+  "displayName": "ai-prompt-combiner",
+  "description": "",
+  "publisher":"sown", 
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+ "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ai-prompt-combiner-container",
+          "title": "AI Prompt Combiner",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "ai-prompt-combiner-container": [
+        {
+          "id": "ai-prompt-source-view",
+          "name": "Project Files",
+          "contextualTitle": "Project Files"
+        },
+        {
+          "id": "ai-prompt-selected-view",
+          "name": "Selected for Prompt",
+          "contextualTitle": "Selected for Prompt"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "ai-prompt-combiner.compile",
+        "title": "Compile to Prompt",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "ai-prompt-combiner.addFile",
+        "title": "Add",
+        "icon": "$(add)"
+      },
+      {
+        "command": "ai-prompt-combiner.removeFile",
+        "title": "Remove",
+        "icon": "$(remove)"
+      },
+      {
+        "command": "ai-prompt-combiner.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "ai-prompt-combiner.compile",
+          "when": "view == ai-prompt-selected-view",
+          "group": "navigation"
+        },
+        {
+          "command": "ai-prompt-combiner.refresh",
+          "when": "view == ai-prompt-source-view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ai-prompt-combiner.addFile",
+          "when": "view == ai-prompt-source-view",
+          "group": "inline"
+        },
+        {
+          "command": "ai-prompt-combiner.removeFile",
+          "when": "view == ai-prompt-selected-view",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.101.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
+
+
+//--- END OF FILE: package.json ---
+
+//--- FILE: README.md ---
+
+# AI Prompt Combiner
+
+Extension này giúp bạn dễ dàng chọn nhiều file và thư mục để tổng hợp nội dung của chúng vào một file prompt duy nhất cho AI.
+
+## Tính năng
+
+- Giao diện dạng cây trực quan để chọn file và thư mục.
+- Tự động tạo sơ đồ cấu trúc thư mục trong file output.
+- Tổng hợp nội dung các file đã chọn vào file `combined_prompt.txt`.
+- Bỏ qua các file và thư mục không cần thiết như `node_modules`, `.git`, `target`...
+
+## Cách sử dụng
+
+1. Nhấn vào icon "AI Prompt Combiner" trên thanh công cụ bên trái.
+2. Trong khung nhìn "Project Files", nhấn nút `+` trên các file/thư mục bạn muốn thêm.
+3. Các mục đã chọn sẽ xuất hiện trong khung nhìn "Selected for Prompt" bên dưới.
+4. Nhấn vào nút "Compile to Prompt" trên thanh tiêu đề của khung nhìn "Selected for Prompt".
+5. File `combined_prompt.txt` sẽ được tạo ở thư mục gốc của dự án.
+
+//--- END OF FILE: README.md ---
+
+//--- FILE: tsconfig.json ---
+
+{
+	"compilerOptions": {
+		"module": "Node16",
+		"target": "ES2022",
+		"outDir": "out",
+		"lib": [
+			"ES2022"
+		],
+		"sourceMap": true,
+		"rootDir": "src",
+		"strict": true,   /* enable all strict type-checking options */
+		/* Additional Checks */
+		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
+	}
+}
+
+
+//--- END OF FILE: tsconfig.json ---
+
+//--- FILE: vsc-extension-quickstart.md ---
+
+# Welcome to your VS Code Extension
+
+## What's in the folder
+
+* This folder contains all of the files necessary for your extension.
+* `package.json` - this is the manifest file in which you declare your extension and command.
+  * The sample plugin registers a command and defines its title and command name. With this information VS Code can show the command in the command palette. It doesn’t yet need to load the plugin.
+* `src/extension.ts` - this is the main file where you will provide the implementation of your command.
+  * The file exports one function, `activate`, which is called the very first time your extension is activated (in this case by executing the command). Inside the `activate` function we call `registerCommand`.
+  * We pass the function containing the implementation of the command as the second parameter to `registerCommand`.
+
+## Get up and running straight away
+
+* Press `F5` to open a new window with your extension loaded.
+* Run your command from the command palette by pressing (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) and typing `Hello World`.
+* Set breakpoints in your code inside `src/extension.ts` to debug your extension.
+* Find output from your extension in the debug console.
+
+## Make changes
+
+* You can relaunch the extension from the debug toolbar after changing code in `src/extension.ts`.
+* You can also reload (`Ctrl+R` or `Cmd+R` on Mac) the VS Code window with your extension to load your changes.
+
+## Explore the API
+
+* You can open the full set of our API when you open the file `node_modules/@types/vscode/index.d.ts`.
+
+## Run tests
+
+* Install the [Extension Test Runner](https://marketplace.visualstudio.com/items?itemName=ms-vscode.extension-test-runner)
+* Run the "watch" task via the **Tasks: Run Task** command. Make sure this is running, or tests might not be discovered.
+* Open the Testing view from the activity bar and click the Run Test" button, or use the hotkey `Ctrl/Cmd + ; A`
+* See the output of the test result in the Test Results view.
+* Make changes to `src/test/extension.test.ts` or create new test files inside the `test` folder.
+  * The provided test runner will only consider files matching the name pattern `**.test.ts`.
+  * You can create folders inside the `test` folder to structure your tests any way you want.
+
+## Go further
+
+* [Follow UX guidelines](https://code.visualstudio.com/api/ux-guidelines/overview) to create extensions that seamlessly integrate with VS Code's native interface and patterns.
+* Reduce the extension size and improve the startup time by [bundling your extension](https://code.visualstudio.com/api/working-with-extensions/bundling-extension).
+* [Publish your extension](https://code.visualstudio.com/api/working-with-extensions/publishing-extension) on the VS Code extension marketplace.
+* Automate builds by setting up [Continuous Integration](https://code.visualstudio.com/api/working-with-extensions/continuous-integration).
+* Integrate to the [report issue](https://code.visualstudio.com/api/get-started/wrapping-up#issue-reporting) flow to get issue and feature requests reported by users.
+
+
+//--- END OF FILE: vsc-extension-quickstart.md ---
+
+//--- FILE: src/ProjectFilesProvider.ts ---
+
+import * as vscode from 'vscode';
+import * as path from 'path';
+
+// Lớp này được export để các file khác có thể sử dụng
+export class Dependency extends vscode.TreeItem {
+  constructor(
+    public readonly label: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly resourceUri: vscode.Uri,
+    // Tham số contextValue đã được thêm vào đây
+    public readonly contextValue: string 
+  ) {
+    super(label, collapsibleState);
+    this.tooltip = `${this.label}`;
+  }
+}
+
+export class ProjectFilesProvider implements vscode.TreeDataProvider<Dependency> {
+  private _onDidChangeTreeData: vscode.EventEmitter<Dependency | undefined | null | void> = new vscode.EventEmitter<Dependency | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<Dependency | undefined | null | void> = this._onDidChangeTreeData.event;
+
+  // Danh sách các file và thư mục cần bỏ qua
+  private ignoreFolders = ['.git', 'node_modules', '.vscode', 'dist', 'out', 'build', '.idea'];
+  private ignoreFiles = ['.DS_Store', 'pnpm-lock.yaml', 'package-lock.json', 'yarn.lock', '.gitignore'];
+
+  constructor(private workspaceRoot: string | undefined) {}
+
+  refresh(): void {
+    this._onDidChangeTreeData.fire();
+  }
+
+  getTreeItem(element: Dependency): vscode.TreeItem {
+    return element;
+  }
+
+  getChildren(element?: Dependency): Thenable<Dependency[]> {
+    if (!this.workspaceRoot) {
+      vscode.window.showInformationMessage('No project folder found in workspace');
+      return Promise.resolve([]);
+    }
+
+    const targetPath = element ? element.resourceUri.fsPath : this.workspaceRoot;
+    return this.getFilesInDirectory(targetPath);
+  }
+
+  private async getFilesInDirectory(dirPath: string): Promise<Dependency[]> {
+    const dirEntries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dirPath));
+    const dependencies: Dependency[] = [];
+
+    for (const [name, type] of dirEntries) {
+      if ((type === vscode.FileType.Directory && this.ignoreFolders.includes(name)) ||
+          (type === vscode.FileType.File && this.ignoreFiles.includes(name))) {
+        continue;
+      }
+
+      const uri = vscode.Uri.joinPath(vscode.Uri.file(dirPath), name);
+      if (type === vscode.FileType.Directory) {
+        // 'projectFile' được truyền vào làm contextValue
+        dependencies.push(new Dependency(name, vscode.TreeItemCollapsibleState.Collapsed, uri, 'projectFile'));
+      } else {
+         // 'projectFile' được truyền vào làm contextValue
+        dependencies.push(new Dependency(name, vscode.TreeItemCollapsibleState.None, uri, 'projectFile'));
+      }
+    }
+
+    // Sắp xếp: thư mục lên trước, sau đó đến file, tất cả theo alphabet
+    dependencies.sort((a, b) => {
+        if (a.collapsibleState === b.collapsibleState) {
+            return a.label.localeCompare(b.label);
+        }
+        return a.collapsibleState === vscode.TreeItemCollapsibleState.Collapsed ? -1 : 1;
+    });
+
+    return dependencies;
+  }
+}
+
+//--- END OF FILE: src/ProjectFilesProvider.ts ---
+
+//--- FILE: src/SelectedFilesProvider.ts ---
+
+import * as vscode from 'vscode';
+import * as path from 'path';
+// Import các lớp dùng chung
+import { Dependency } from './ProjectFilesProvider';
+import { TreeNode } from './tree';
+
+export class SelectedFilesProvider implements vscode.TreeDataProvider<Dependency> {
+  private _onDidChangeTreeData: vscode.EventEmitter<Dependency | undefined | null | void> = new vscode.EventEmitter<Dependency | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<Dependency | undefined | null | void> = this._onDidChangeTreeData.event;
+
+  // Constructor bây giờ nhận vào một TreeNode thay vì Set
+  constructor(private selectionTree: TreeNode) {}
+
+  refresh(): void {
+    this._onDidChangeTreeData.fire();
+  }
+
+  getTreeItem(element: Dependency): vscode.TreeItem {
+    return element;
+  }
+
+  // getChildren được viết lại hoàn toàn để đọc từ cây
+  getChildren(element?: Dependency): Thenable<Dependency[]> {
+    // Nếu không có element, chúng ta đang ở cấp gốc. Lấy các con của nút gốc của cây.
+    // Nếu có element, tìm nút tương ứng trong cây và lấy các con của nó.
+    const parentNode = element ? this.findNode(element.resourceUri) : this.selectionTree;
+
+    if (!parentNode) {
+      return Promise.resolve([]);
+    }
+
+    // Chuyển các nút con từ Map thành một mảng các Dependency để hiển thị
+    const childrenItems = Array.from(parentNode.children.values()).map(node => {
+      const label = path.basename(node.uri.fsPath);
+      // Một nút có thể thu gọn (là thư mục) nếu nó có con
+      const collapsibleState = node.children.size > 0
+        ? vscode.TreeItemCollapsibleState.Collapsed
+        : vscode.TreeItemCollapsibleState.None;
+
+      return new Dependency(label, collapsibleState, node.uri, 'selectedFile');
+    });
+
+    // Sắp xếp thư mục trước, file sau
+    childrenItems.sort((a, b) => {
+        if (a.collapsibleState === b.collapsibleState) {
+            return a.label.localeCompare(b.label);
+        }
+        return a.collapsibleState === vscode.TreeItemCollapsibleState.Collapsed ? -1 : 1;
+    });
+
+    return Promise.resolve(childrenItems);
+  }
+
+  /**
+   * Hàm helper để tìm một TreeNode trong cây dựa vào URI.
+   */
+  private findNode(uri: vscode.Uri): TreeNode | undefined {
+    const workspaceRoot = this.selectionTree.uri;
+    // Nếu URI là của thư mục gốc, trả về ngay nút gốc của cây
+    if (uri.fsPath === workspaceRoot.fsPath) {
+        return this.selectionTree;
+    }
+
+    const relativePath = path.relative(workspaceRoot.fsPath, uri.fsPath);
+    const parts = relativePath.split(path.sep);
+
+    let currentNode = this.selectionTree;
+    for (const part of parts) {
+        const child = currentNode.children.get(part);
+        if (child) {
+            currentNode = child;
+        } else {
+            // Không tìm thấy đường dẫn trong cây
+            return undefined; 
+        }
+    }
+    return currentNode;
+  }
+}
+
+//--- END OF FILE: src/SelectedFilesProvider.ts ---
+
+//--- FILE: src/extension.ts ---
+
+import * as vscode from 'vscode';
+import * as path from 'path';
+import { Dependency, ProjectFilesProvider } from './ProjectFilesProvider';
+import { SelectedFilesProvider } from './SelectedFilesProvider';
+import { TreeNode } from './tree';
+
+// --- CÁC HẰNG SỐ CẤU HÌNH BỎ QUA ---
+const IGNORE_FOLDERS = ['.git', 'node_modules', '.vscode', 'dist', 'out', 'build', '.idea', 'target'];
+const IGNORE_FILES = ['.DS_Store', 'pnpm-lock.yaml', 'package-lock.json', 'yarn.lock', '.gitignore'];
+const IGNORE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp', '.pdf', '.zip', '.rar', '.exe', '.dll', '.o', '.a', '.so', '.lock'];
+
+
+export function activate(context: vscode.ExtensionContext) {
+
+    console.log('AI Prompt Combiner is now active!');
+
+    const rootUri = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+        ? vscode.workspace.workspaceFolders[0].uri : undefined;
+
+    if (!rootUri) {
+        vscode.window.showInformationMessage("Please open a project folder to use AI Prompt Combiner.");
+        return;
+    }
+
+    // ===== STATE MANAGEMENT: Dùng cấu trúc Tree để lưu trữ lựa chọn =====
+    const selectionTree: TreeNode = { uri: rootUri, children: new Map() };
+
+    // --- KHỞI TẠO CÁC VIEW PROVIDER ---
+    const projectFilesProvider = new ProjectFilesProvider(rootUri.fsPath);
+    vscode.window.registerTreeDataProvider('ai-prompt-source-view', projectFilesProvider);
+    
+    const selectedFilesProvider = new SelectedFilesProvider(selectionTree);
+    vscode.window.registerTreeDataProvider('ai-prompt-selected-view', selectedFilesProvider);
+
+    // --- ĐĂNG KÝ CÁC LỆNH ---
+
+    vscode.commands.registerCommand('ai-prompt-combiner.refresh', () => projectFilesProvider.refresh());
+    
+    // Lệnh THÊM: thêm file/thư mục vào cây lựa chọn
+    vscode.commands.registerCommand('ai-prompt-combiner.addFile', async (item: Dependency) => {
+        const filesToAdd: vscode.Uri[] = [];
+        const stat = await vscode.workspace.fs.stat(item.resourceUri);
+        if (stat.type === vscode.FileType.Directory) {
+            await getFilesRecursively(item.resourceUri, filesToAdd);
+        } else {
+            filesToAdd.push(item.resourceUri);
+        }
+
+        for (const file of filesToAdd) {
+            addToTree(selectionTree, file, rootUri);
+        }
+        selectedFilesProvider.refresh();
+    });
+
+    // Lệnh XÓA: xóa file/thư mục khỏi cây lựa chọn
+    vscode.commands.registerCommand('ai-prompt-combiner.removeFile', async (item: Dependency) => {
+        const urisToRemove = await getAllUrisFromNode(item.resourceUri, selectionTree, rootUri);
+        for(const uri of urisToRemove) {
+            removeFromTree(selectionTree, uri, rootUri);
+        }
+        selectedFilesProvider.refresh();
+    });
+
+    // Lệnh COMPILE: tạo file output cuối cùng
+    const compileCommand = vscode.commands.registerCommand('ai-prompt-combiner.compile', async () => {
+        const allFiles = await getAllUrisFromNode(rootUri, selectionTree, rootUri);
+        if (allFiles.length === 0) {
+            vscode.window.showWarningMessage('No files selected to combine.');
+            return;
+        }
+        
+        vscode.window.showInformationMessage('Generating project structure...');
+        const projectStructure = await generateDirectoryTree(rootUri, 0, 10);
+        
+        let combinedContent = `//--- PROJECT STRUCTURE ---\n\n${projectStructure}\n\n//--- FILE CONTENTS ---\n\n`;
+
+        for (const fileUri of allFiles) {
+            try {
+                const relativePath = path.relative(rootUri.fsPath, fileUri.fsPath).replace(/\\/g, '/');
+                const contentBuffer = await vscode.workspace.fs.readFile(fileUri);
+                const content = contentBuffer.toString();
+                combinedContent += `//--- FILE: ${relativePath} ---\n\n`;
+                combinedContent += content;
+                combinedContent += '\n\n//--- END OF FILE: ' + relativePath + ' ---\n\n';
+            } catch (error) {
+                console.error(`Error reading file ${fileUri.fsPath}:`, error);
+            }
+        }
+        
+        const outputUri = vscode.Uri.joinPath(rootUri, 'combined_prompt.txt');
+        try {
+            const outputBuffer = Buffer.from(combinedContent, 'utf8');
+            await vscode.workspace.fs.writeFile(outputUri, outputBuffer);
+            const openAction = 'Open File';
+            vscode.window.showInformationMessage(`Successfully created combined_prompt.txt!`, openAction)
+                .then(selection => {
+                    if (selection === openAction) {
+                        vscode.window.showTextDocument(outputUri);
+                    }
+                });
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to write to combined_prompt.txt. See console for details.`);
+            console.error('Error writing combined file:', error);
+        }
+    });
+
+    context.subscriptions.push(compileCommand);
+}
+
+export function deactivate() {}
+
+
+// =====================================================================
+// ======================= CÁC HÀM HELPER ==============================
+// =====================================================================
+
+function addToTree(root: TreeNode, uri: vscode.Uri, workspaceRoot: vscode.Uri) {
+    const relativePath = path.relative(workspaceRoot.fsPath, uri.fsPath);
+    const parts = relativePath.split(path.sep);
+    let currentNode = root;
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        if (!currentNode.children.has(part)) {
+            const newUri = vscode.Uri.joinPath(currentNode.uri, part);
+            currentNode.children.set(part, { uri: newUri, children: new Map() });
+        }
+        currentNode = currentNode.children.get(part)!;
+    }
+}
+
+function removeFromTree(root: TreeNode, uri: vscode.Uri, workspaceRoot: vscode.Uri): boolean {
+    const relativePath = path.relative(workspaceRoot.fsPath, uri.fsPath);
+    const parts = relativePath.split(path.sep);
+    return removeRecursive(root, parts);
+}
+
+function removeRecursive(node: TreeNode, parts: string[]): boolean {
+    if (parts.length === 0) return false;
+    const part = parts.shift()!;
+    const childNode = node.children.get(part);
+    if (!childNode) return false;
+    if (parts.length === 0) {
+        node.children.delete(part);
+    } else {
+        if (removeRecursive(childNode, parts)) {
+            if (childNode.children.size === 0) {
+                node.children.delete(part);
+            }
+        }
+    }
+    return node.children.size === 0;
+}
+
+async function getAllUrisFromNode(startUri: vscode.Uri, root: TreeNode, workspaceRoot: vscode.Uri): Promise<vscode.Uri[]> {
+    const relativePath = path.relative(workspaceRoot.fsPath, startUri.fsPath);
+    const parts = relativePath.split(path.sep).filter(p => p.length > 0);
+    let startNode = root;
+    if (startUri.fsPath !== workspaceRoot.fsPath) {
+        for (const part of parts) {
+            if (startNode.children.has(part)) {
+                startNode = startNode.children.get(part)!;
+            } else {
+                return [];
+            }
+        }
+    }
+    const files: vscode.Uri[] = [];
+    const queue: TreeNode[] = [startNode];
+    while (queue.length > 0) {
+        const node = queue.shift()!;
+        if (node.children.size > 0) {
+            queue.push(...Array.from(node.children.values()));
+        } else {
+            if(node.uri.fsPath !== workspaceRoot.fsPath) {
+                 files.push(node.uri);
+            }
+        }
+    }
+    return files;
+}
+
+async function getFilesRecursively(uri: vscode.Uri, fileList: vscode.Uri[]): Promise<void> {
+    try {
+        const stat = await vscode.workspace.fs.stat(uri);
+        const name = uri.path.split('/').pop() || '';
+        if (stat.type === vscode.FileType.Directory) {
+            if (IGNORE_FOLDERS.includes(name)) return;
+            const entries = await vscode.workspace.fs.readDirectory(uri);
+            for (const [entryName] of entries) {
+                await getFilesRecursively(vscode.Uri.joinPath(uri, entryName), fileList);
+            }
+        } else if (stat.type === vscode.FileType.File) {
+            const fileExtension = path.extname(name).toLowerCase();
+            if (IGNORE_FILES.includes(name) || IGNORE_EXTENSIONS.includes(fileExtension)) return;
+            fileList.push(uri);
+        }
+    } catch (error) {
+        console.error(`Error processing URI ${uri.fsPath}:`, error);
+    }
+}
+
+async function generateDirectoryTree(uri: vscode.Uri, depth: number, maxDepth: number, prefix: string = '', isLast: boolean = true): Promise<string> {
+    if (depth > maxDepth) return '';
+    const name = path.basename(uri.fsPath);
+    if (depth > 0 && (IGNORE_FOLDERS.includes(name) || IGNORE_FILES.includes(name))) return '';
+    let treeString = (depth > 0 ? prefix + (isLast ? '└── ' : '├── ') : '') + name + '\n';
+    try {
+        const stat = await vscode.workspace.fs.stat(uri);
+        if (stat.type === vscode.FileType.Directory) {
+            const entries = await vscode.workspace.fs.readDirectory(uri);
+            const filteredEntries = entries
+                .map(([name, type]) => ({ name, type }))
+                .filter(e => !IGNORE_FOLDERS.includes(e.name) && !IGNORE_FILES.includes(e.name))
+                .sort((a, b) => {
+                    if (a.type === b.type) return a.name.localeCompare(b.name);
+                    return a.type === vscode.FileType.Directory ? -1 : 1;
+                });
+            for (let i = 0; i < filteredEntries.length; i++) {
+                const entry = filteredEntries[i];
+                const childUri = vscode.Uri.joinPath(uri, entry.name);
+                const isChildLast = i === filteredEntries.length - 1;
+                const newPrefix = prefix + (isLast ? '    ' : '|   ');
+                treeString += await generateDirectoryTree(childUri, depth + 1, maxDepth, newPrefix, isChildLast);
+            }
+        }
+    } catch (e) { /* ignore */ }
+    return treeString;
+}
+
+//--- END OF FILE: src/extension.ts ---
+
+//--- FILE: src/tree.ts ---
+
+import * as vscode from 'vscode';
+
+/**
+ * Định nghĩa một nút trong cây thư mục được chọn.
+ * Mỗi nút đại diện cho một file hoặc một thư mục.
+ */
+export interface TreeNode {
+  /**
+   * URI đầy đủ của file/thư mục.
+   */
+  uri: vscode.Uri;
+  /**
+   * Các nút con của nút hiện tại.
+   * Dùng Map với key là tên của file/thư mục con (ví dụ: 'components')
+   * và value là chính TreeNode con đó.
+   */
+  children: Map<string, TreeNode>;
+}
+
+//--- END OF FILE: src/tree.ts ---
+
+//--- FILE: src/test/extension.test.ts ---
+
+import * as assert from 'assert';
+
+// You can import and use all API from the 'vscode' module
+// as well as import your extension to test it
+import * as vscode from 'vscode';
+// import * as myExtension from '../../extension';
+
+suite('Extension Test Suite', () => {
+	vscode.window.showInformationMessage('Start all tests.');
+
+	test('Sample test', () => {
+		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
+		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
+	});
+});
+
+
+//--- END OF FILE: src/test/extension.test.ts ---
+

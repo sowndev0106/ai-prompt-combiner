@@ -1,0 +1,107 @@
+{
+  "name": "ai-prompt-combiner",
+  "displayName": "ai-prompt-combiner",
+  "description": "",
+  "publisher":"sown", 
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+ "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ai-prompt-combiner-container",
+          "title": "AI Prompt Combiner",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "ai-prompt-combiner-container": [
+        {
+          "id": "ai-prompt-source-view",
+          "name": "Project Files",
+          "contextualTitle": "Project Files"
+        },
+        {
+          "id": "ai-prompt-selected-view",
+          "name": "Selected for Prompt",
+          "contextualTitle": "Selected for Prompt"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "ai-prompt-combiner.compile",
+        "title": "Compile to Prompt",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "ai-prompt-combiner.addFile",
+        "title": "Add",
+        "icon": "$(add)"
+      },
+      {
+        "command": "ai-prompt-combiner.removeFile",
+        "title": "Remove",
+        "icon": "$(remove)"
+      },
+      {
+        "command": "ai-prompt-combiner.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "ai-prompt-combiner.compile",
+          "when": "view == ai-prompt-selected-view",
+          "group": "navigation"
+        },
+        {
+          "command": "ai-prompt-combiner.refresh",
+          "when": "view == ai-prompt-source-view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ai-prompt-combiner.addFile",
+          "when": "view == ai-prompt-source-view",
+          "group": "inline"
+        },
+        {
+          "command": "ai-prompt-combiner.removeFile",
+          "when": "view == ai-prompt-selected-view",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.101.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
