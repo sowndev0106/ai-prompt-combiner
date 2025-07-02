@@ -23,9 +23,11 @@ ai-prompt-combiner
     ├── CHANGELOG.md
     ├── combined_prompt.txt
     ├── eslint.config.mjs
+    ├── LICENSE
     ├── package.json
     ├── prompt-combiner-0.0.1.vsix
     ├── prompt-combiner-0.0.2.vsix
+    ├── prompt-combiner-0.0.3.vsix
     ├── README.md
     ├── tsconfig.json
     └── vsc-extension-quickstart.md
@@ -39,8 +41,9 @@ ai-prompt-combiner
   "name": "prompt-combiner",
   "displayName": "prompt-combiner",
   "description": "",
-  "publisher":"prompt-combiner", 
-  "version": "0.0.2",
+  "publisher": "prompt-combiner",
+  "icon": "media/icon_v3.png",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.101.0"
   },
@@ -49,7 +52,7 @@ ai-prompt-combiner
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
- "contributes": {
+  "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
@@ -142,7 +145,6 @@ ai-prompt-combiner
     "@vscode/test-electron": "^2.5.2"
   }
 }
-
 
 //--- END OF FILE: package.json ---
 
