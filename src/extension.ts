@@ -5,7 +5,7 @@ import { SelectedFilesProvider } from './SelectedFilesProvider';
 import { TreeNode } from './tree';
 
 // --- CÁC HẰNG SỐ CẤU HÌNH BỎ QUA ---
-const IGNORE_FOLDERS = ['.git', 'node_modules', '.vscode', 'dist', 'out', 'build', '.idea', 'target'];
+const IGNORE_FOLDERS = ['.git', 'node_modules', '.vscode', 'dist', 'out', 'build', '.idea', 'target', '.next'];
 const IGNORE_FILES = ['.DS_Store', 'pnpm-lock.yaml', 'package-lock.json', 'yarn.lock', '.gitignore'];
 const IGNORE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp', '.pdf', '.zip', '.rar', '.exe', '.dll', '.o', '.a', '.so', '.lock'];
 
